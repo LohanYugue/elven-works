@@ -1,0 +1,33 @@
+---
+# vars file for services
+packages:
+   - vim
+   - wget
+   - epel-release
+   - php-cli
+   - php-fpm
+   - php-mysql
+   - php-json
+   - php-mbstring
+   - php-xml
+   - php-gd
+   - php-curl
+   # - mariadb-server
+   - python3
+   - MySQL-python
+   - http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+   - zip
+   - unzip
+   - php-zip
+   - php-soap.x86_64 
+   - php-intl.x86_64
+   - php-bcmath.x86_64
+   - java-1.8*
+   - memcached
+
+packages2:
+   - php72
+   - nginx
+   - php-opcache
+   - python2-certbot-nginx
+

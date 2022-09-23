@@ -1,0 +1,63 @@
+---
+# tasks file for wordpress
+
+- name: Criando base de dados com nome 'wordpress'
+  mysql_db:
+    login_host: ${RDS_HOST}
+    login_user: admin
+    login_password: admin123
+    name: wordpress
+    encoding: utf8mb4
+    state: present
+
+# - name: Criando usuário da base com todos privilegios
+#   mysql_user:
+#     host: terraform-20220918024826773700000001.crui89ar8dat.us-east-1.rds.amazonaws.com
+#     login_host: terraform-20220918024826773700000001.crui89ar8dat.us-east-1.rds.amazonaws.com
+#     login_user: admin
+#     login_password: admin123
+#     name: admin
+#     password: admin
+#     priv: '*.*:ALL,GRANT'
+#     state: present
+
+- name: Download Wordpress
+  get_url:
+     url: https://wordpress.org/wordpress-6.0.2.tar.gz
+     dest: /tmp/
+
+# - name: Descompactando o Wordpress
+#   unarchive:
+#          src: ./roles/wordpress/files/latest.tar.gz
+#          dest: /var/www/html
+
+- name: Descompactando o Wordpress
+  unarchive:
+         src: /tmp/wordpress-6.0.2.tar.gz
+         dest: /var/www/html
+         remote_src: yes
+
+
+- name: Copiando arq wp-config
+  copy:
+     src: ./roles/wordpress/files/wp-config.php
+     dest: /var/www/html/wordpress
+
+- name: Copiando arq info.php
+  copy:
+     src: ./roles/wordpress/files/info.php
+     dest: /var/www/html/wordpress
+
+
+- name: Atribuindo nginx como owner do diretorio "/var/www/html/wordpress"
+  file:
+     path: /var/www/html/wordpress
+     owner: nginx
+     group: nginx
+     recurse: yes
+
+- name: nginx | Iniciando e habilitando
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

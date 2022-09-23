@@ -1,0 +1,8 @@
+#Terraform repo
+*.terraform
+
+#HCL files
+*.hcl
+
+#Terraform plan file
+teste

@@ -1,0 +1,90 @@
+---
+  - name: Atualização de pacotes
+    yum:
+     name: '*'
+     state: latest
+     update_cache: yes
+
+
+  - name: Instalação dos pacotes essenciais
+    yum:
+     name: "{{ packages }}"
+     state: present
+    become_user: root
+
+
+  - name: Deixando como enable o remi-php72
+    command: yum-config-manager --enable remi-php72
+
+
+  - name: Instalação dos pacotes restantes
+    yum:
+     name: "{{ packages2 }}"
+     state: present
+    become_user: root
+
+
+  - name: Desabilitando o SElinux (sem precisar reiniciar o server)
+    command: setenforce 0
+
+
+  - name: Desabilitando o SELinux
+    selinux:
+       state: disabled
+
+
+  - name: "Configurando memcache no php.ini"
+    replace: dest=/etc/php.ini regexp='session.save_handler = files' replace='session.save_handler = memcached'
+
+  - name: "Configurando memcache no php.ini"
+    replace: dest=/etc/php.ini regexp=';session.save_path = "/tmp"' replace='session.save_path = "127.0.0.1:11211"'
+
+  # - name: "Configurando memcache no php.ini"
+  #   ansible.builtin.lineinfile:
+  #     path: /etc/httpd/conf/httpd.conf
+  #     regexp: 'memcached'
+  #     insertafter: 'memcached'
+  #     line: 'session.save_path = "127.0.0.1:11211"'
+
+  # - name: Copiando arq de conf do MariaDB
+  #   copy:
+  #      src: ./roles/instalation/files/MariaDB.repo
+  #      dest: /etc/yum.repos.d/
+  #      owner: root
+  #      group: root
+
+  # - name: Atualização do MariaDB para versao 10.2
+  #   yum:
+  #    name: 'mariadb-server'
+  #    state: latest
+  #    update_cache: yes
+
+
+  # - name: MariaDB | Iniciando e habilitando
+  #   service:
+  #    name: mariadb
+  #    state: started
+  #    enabled: yes
+
+  - name: php-fpm | Iniciando e habilitando
+    service:
+     name: php-fpm
+     state: started
+     enabled: yes
+
+  - name: nginx | Iniciando e habilitando
+    service:
+     name: nginx
+     state: started
+     enabled: yes
+
+  - name: Reiniciando php-fpm
+    service:
+      name: php-fpm
+      state: restarted
+      
+  - name: memcached | Iniciando e habilitando
+    service:
+     name: memcached
+     state: started
+     enabled: yes

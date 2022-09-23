@@ -1,0 +1,41 @@
+---
+# tasks file for nginx
+
+- name: Copiando o arquivo de conf do nginx
+  copy:
+     src: ./roles/nginx/files/nginx.cfg
+     dest: /etc/nginx/conf.d/blog.conf
+
+- name: Copiando o arquivo de conf do php-fpm "www.conf"
+  copy:
+     src: ./roles/nginx/files/php-fpm.cfg
+     dest: /etc/php-fpm.d/www.conf
+
+- name: "Editando caminho root no nginx.conf"
+  replace: dest=/etc/nginx/nginx.conf regexp='/usr/share/nginx/html' replace='/var/www/html/wordpress'
+
+- name: atribuindo o nginx ao diretorio "/var/lib/php"
+  file:
+      path: /var/lib/php
+      owner: nginx
+      group: nginx
+
+- name: Copiando arquivo "www.sock"
+  copy:
+     src: ./roles/wordpress/files/www.sock
+     dest: /run/php-fpm/www.sock
+     owner: nginx
+     group: nginx
+
+- name: Reiniciando php-fpm
+  service:
+      name: php-fpm
+      state: restarted
+
+- name: Atribuindo nginx como owner do diretorio "/var/www/html/"
+  ansible.builtin.file:
+    path: /var/www/html/
+    state: directory
+    mode: '0755'
+    owner: nginx
+    group: nginx
